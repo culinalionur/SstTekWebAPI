@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using SstTekWebAPI.Filters;
 using SstTekWebAPI.Linq;
+using System.Text.Json.Serialization;
 
 namespace SstTekWebAPI.Controllers
 {
@@ -7,6 +10,23 @@ namespace SstTekWebAPI.Controllers
 
     public class ExceptionTestController : ControllerBase
     {
+        private readonly IConfiguration _configuration;
+        public ExceptionTestController(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+        [HttpGet]
+        [Route("config-test")]
+
+        public string ConfigTest()
+        {
+            var secretKey = _configuration.GetValue<string>("Secrets:SecretKey");
+            var accessKey = _configuration.GetValue<int>("Secrets:AccessKey");
+            var count = _configuration.GetValue<int>("Secrets:Props:Count");
+
+            var copyrightOwner = _configuration.GetValue<string>("Copyright:Owner");
+            return "OK";
+        }
         [HttpGet]
         public string FirstEndpoint()
         {
@@ -45,7 +65,55 @@ namespace SstTekWebAPI.Controllers
 
             //İstediğimiz propertye göre sıralamak için
             var orderedStudentList = db.Students.OrderBy(o => o.Height).ToList();
+
+            var groupedByColor = db.Students.GroupBy(g => g.Color);
+            var response = new List<GroupedStudent>();
+
+            foreach(var group in groupedByColor)
+            {
+                var groupName = group.Key;
+                var sameGroupedStudents = group.ToList();
+                response.Add(new GroupedStudent
+                {
+                    GroupName = groupName,
+                    Students = sameGroupedStudents
+                });
+            }
+
+            var groupedByTwoProps = db.Students.GroupBy(g => new { g.Color, g.Surname });
+            foreach (var groupedBy in groupedByTwoProps)
+            {
+                var colorName = groupedBy.Key.Color;
+                var surname = groupedBy.Key.Surname;
+                var students2 = groupedBy.ToList();
+            }
+
+
             return "OK";
+
+            
+        }
+        [HttpGet]
+        [Route("filter-test")]
+        [TestActionFilter]
+        public IActionResult FilterTest()
+        {
+            try
+            {
+                var response = new Response
+                {
+                    Message = "Onur"
+                };
+                return new ContentResult
+                {
+                    Content = JsonConvert.SerializeObject(response)
+                };
+            }
+            catch (Exception e )
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
     }
 }

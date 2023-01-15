@@ -1,19 +1,40 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace SstTekWebAPI.Filters
 {
-    public class TestActionFilter : IActionFilter
+    public class TestActionFilter : ActionFilterAttribute
     {
-        public void OnActionExecuting(ActionExecutingContext context)
+        public override void OnActionExecuting(ActionExecutingContext context)
         {
-            context.HttpContext.Request.Headers.Add("test", "1");
-            
+            string varIpAddress = string.Empty;
+            var testValue = context.HttpContext.Request.Headers["Test"];
+            Console.WriteLine(testValue);
+
+            if (testValue != "123456")
+            {
+                context.Result = new UnauthorizedResult();
+                base.OnActionExecuting(context);
+            }
+
+
+
         }
-        public void OnActionExecuted(ActionExecutedContext context)
+        public override void OnActionExecuted(ActionExecutedContext context)
         {
            
         }
-        
+
+        public override void OnResultExecuted(ResultExecutedContext filterContext)
+        {
+        }
+        public override void OnResultExecuting(ResultExecutingContext filterContext)
+        {
+            filterContext.Result = new ContentResult
+            {
+                Content = "test"
+        };
+        }
 
     }
     public class Response
