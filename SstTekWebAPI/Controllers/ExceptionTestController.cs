@@ -62,7 +62,7 @@ namespace SstTekWebAPI.Controllers
             var firstStudents2 = db.Students.First(f => f.Surname == "Kaya");
             //First ve FirstOrDefault arasındaki fark: FirstOrDefault eleman bulamazsa null değer dönerken First metotu veri bulamadığı için hata verir.
             //İstediğimiz koşula uygun veri dönmezse hata fırlat denmesini istersek First kullanırız.
-
+            
             //İstediğimiz propertye göre sıralamak için
             var orderedStudentList = db.Students.OrderBy(o => o.Height).ToList();
 
